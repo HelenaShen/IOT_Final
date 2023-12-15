@@ -2,7 +2,7 @@ import os
 from sendgrid import SendGridAPIClient
 from sendgrid.helpers.mail import Mail
 
-SENDGRID_API_KEY = "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"
+SENDGRID_API_KEY = "MY_API_KEY"
 
 def send_alert_email():
     message = Mail(
