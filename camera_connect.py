@@ -7,6 +7,10 @@ import os
 import matplotlib
 import matplotlib.pyplot as plt
 
+from tflite_support.task import core
+from tflite_support.task import processor
+from tflite_support.task import vision
+
 DRIVE_SERVER_DUMP_DIR = "/Users/wanlin/Desktop/camera_images"
 DRIVE_SERVER_REQUEST_EXEC = "/Users/wanlin/envs/py3/bin/python /Users/wanlin/Desktop/iot/drive_server/send_request.py"
 DRIVE_SERVER_IP = "wanlin@192.168.1.27"
@@ -81,6 +85,18 @@ class CameraDetection:
             cv2.imshow("diff_img", img_erode)
             cv2.waitKey(1)
         return pixel_sum > self.detection_pixel_thresh
+
+    def tf_detection(self, img):
+        model = "efficientdet_lite0.tflite"
+        num_threads = 4
+        base_options = core.BaseOptions(file_name=model, num_threads=num_threads)
+        detection_options = processor.DetectionOptions(max_results=3, score_threshold=0.3)
+        options = vision.ObjectDetectorOptions(base_options=base_options, detection_options=detection_options)
+        detector = vision.ObjectDetector.create_from_options(options)
+
+        input_tensor = vision.TensorImage.create_from_array(img)
+        detection_result = detector.detect(input_tensor)
+        return len(detection_result) > 0
 
     def dump_image(self, img):
         # dump image to local machine
